@@ -27,10 +27,6 @@ struct eSpeakConfig {
 struct PiperConfig {
   std::string eSpeakDataPath;
   bool useESpeak = true;
-
-  bool useTashkeel = false;
-  std::optional<std::string> tashkeelModelPath;
-  std::unique_ptr<tashkeel::State> tashkeelState;
 };
 
 enum PhonemeType { eSpeakPhonemes, TextPhonemes };
