@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "phonemize.hpp"
-#include "shared.hpp"
 
 namespace piper {
 

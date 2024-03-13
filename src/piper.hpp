@@ -9,10 +9,9 @@
 #include <vector>
 
 #include <onnxruntime_cxx_api.h>
-#include <piper-phonemize/phoneme_ids.hpp>
-#include <piper-phonemize/phonemize.hpp>
-#include <piper-phonemize/tashkeel.hpp>
 
+#include "phoneme_ids.hpp"
+#include "phonemize.hpp"
 #include "json.hpp"
 
 using json = nlohmann::json;

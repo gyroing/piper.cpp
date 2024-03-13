@@ -158,7 +158,7 @@ if(NOT DEFINED ESPEAK_NG_DIR)
             -DCMAKE_CXX_FLAGS="-fPIC"
             -DCMAKE_POSITION_INDEPENDENT_CODE=ON
     )
-    add_dependencies(piper_phonemize espeak_ng_external)
+    add_dependencies(piper espeak_ng_external)
 endif()
 
 # ---- Install ----
@@ -192,6 +192,8 @@ target_include_directories(piper PUBLIC
 )
 
 # ---- Declare install targets ----
+
+include(GNUInstallDirs)
 
 install(
   TARGETS piper
