@@ -14,4 +14,4 @@ example:
 	cmake --install build/example
 
 clean:
-	rm -rf build install dist
+	rm -rf build install dist download lib
