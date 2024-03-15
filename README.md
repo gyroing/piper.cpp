@@ -1,4 +1,5 @@
-![Piper logo](etc/logo.png)
+# piper.cpp
+This is simply a refactoring of piper and piper-phonemize 
 
 A fast, local neural text to speech system that sounds great and is optimized for the Raspberry Pi 4.
 Piper is used in a [variety of projects](#people-using-piper).
