@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# add the piper library
+# Add the piper library
 add_subdirectory(.. piper)
 
 # Add the executable
@@ -24,5 +24,11 @@ target_include_directories(piper_example PUBLIC
                            "${PROJECT_SOURCE_DIR}/../src"
                            )
 
+# Ensure the executable can find the necessary shared libraries at runtime
+# Set RPATH to $ORIGIN and its lib directory. $ORIGIN refers to the directory containing the executable.
+set_target_properties(piper_example PROPERTIES
+                      INSTALL_RPATH "$ORIGIN/../lib:$ORIGIN/../lib64"
+                      INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 # Set the installation directory for the example executable
-install(TARGETS piper_example DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(TARGETS piper_example DESTINATION bin)  # Installing executable to `bin` directory under CMAKE_INSTALL_PREFIX

@@ -205,7 +205,10 @@ include(GNUInstallDirs)
 
 install(
   TARGETS piper
-  LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX})
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} # for Windows
+)
 
 # Dependencies
 install(
@@ -213,21 +216,27 @@ install(
     DESTINATION ${CMAKE_INSTALL_PREFIX}
     FILES_MATCHING
     PATTERN "*.dll"
-    PATTERN "*.so*")
-
-install(
-    DIRECTORY ${ONNXRUNTIME_DIR}/lib/
-    DESTINATION ${CMAKE_INSTALL_PREFIX}
-    FILES_MATCHING
-    PATTERN "*.dll"
-    PATTERN "*.so*")
-
-install(
-    DIRECTORY ${ONNXRUNTIME_DIR}/include/
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    PATTERN "*.so*"
+)
 
 install(
     DIRECTORY ${ONNXRUNTIME_DIR}/lib/
     DESTINATION ${CMAKE_INSTALL_LIBDIR}
     FILES_MATCHING
-    PATTERN "*.lib")
+    PATTERN "*.dll"
+    PATTERN "*.so*"
+)
+
+install(
+    DIRECTORY ${ONNXRUNTIME_DIR}/include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+# This line seems to be redundant with the ONNX Runtime library files installation above,
+# so consider removing it if ${ONNXRUNTIME_DIR}/lib/ already covers the required files.
+# install(
+#     DIRECTORY ${ONNXRUNTIME_DIR}/lib/
+#     DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#     FILES_MATCHING
+#     PATTERN "*.lib"
+# )
