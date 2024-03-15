@@ -52,8 +52,12 @@ if(NOT DEFINED FMT_DIR)
     fmt_external
     PREFIX "${CMAKE_CURRENT_BINARY_DIR}/f"
     URL "https://github.com/fmtlib/fmt/archive/refs/tags/${FMT_VERSION}.zip"
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${FMT_DIR}
-    CMAKE_ARGS -DFMT_TEST:BOOL=OFF  # Don't build all the tests
+    CMAKE_ARGS 
+      -DCMAKE_INSTALL_PREFIX:PATH=${FMT_DIR}
+      -DFMT_TEST:BOOL=OFF  # Don't build all the tests
+      -DCMAKE_C_FLAGS="-fPIC"
+      -DCMAKE_CXX_FLAGS="-fPIC"
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON
   )
   add_dependencies(piper fmt_external)
 endif()
@@ -67,7 +71,11 @@ if(NOT DEFINED SPDLOG_DIR)
     spdlog_external
     PREFIX "${CMAKE_CURRENT_BINARY_DIR}/s"
     URL "https://github.com/gabime/spdlog/archive/refs/tags/v${SPDLOG_VERSION}.zip"
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX:PATH=${SPDLOG_DIR}
+    CMAKE_ARGS 
+      -DCMAKE_INSTALL_PREFIX:PATH=${SPDLOG_DIR}
+      -DCMAKE_C_FLAGS="-fPIC"
+      -DCMAKE_CXX_FLAGS="-fPIC"
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON
   )
   add_dependencies(piper spdlog_external)
 endif()
