@@ -1,3 +1,5 @@
+#include <filesystem>
+#include <string>
 #include <array>
 #include <chrono>
 #include <fstream>
@@ -10,9 +12,42 @@
 #include <spdlog/spdlog.h>
 
 #include "json.hpp"
+#include "piper.h"
 #include "piper.hpp"
 #include "utf8.h"
 #include "wavfile.hpp"
+
+using json = nlohmann::json;
+using namespace std;
+namespace fs = std::filesystem;
+
+extern "C" EXPORT char* generate_speech(const char* modelPath, const char* prompt) {
+    // Simplified logic from the main program to generate speech.
+    // This example assumes that other necessary initialization and cleanup are handled elsewhere.
+    
+    // Convert C string to C++ string
+    string model_path(modelPath);
+    string text_prompt(prompt);
+
+    // Load the model and prepare for synthesis.
+    // This is a simplified example. You should adapt it according to your specific requirements.
+    std::optional<piper::SpeakerId> speakerId = 0;
+    piper::PiperConfig piperConfig;
+    piper::Voice voice;
+    // Example model loading, adapt as necessary
+    loadVoice(piperConfig, model_path, model_path + ".json", voice, speakerId, false);
+
+    // Generate the WAV file.
+    fs::path output_path = fs::temp_directory_path() / "output.wav";
+    ofstream audio_file(output_path, ios::binary);
+    piper::SynthesisResult result;
+    piper::textToWavFile(piperConfig, voice, text_prompt, audio_file, result);
+
+    // Allocate memory on the heap for the file path to return.
+    // The caller is responsible for freeing this memory.
+    char* wav_file_path = strdup(output_path.string().c_str());
+    return wav_file_path;
+}
 
 namespace piper {
 

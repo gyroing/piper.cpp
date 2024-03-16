@@ -1,5 +1,5 @@
-#ifndef PIPER_H_
-#define PIPER_H_
+#ifndef PIPER_HPP
+#define PIPER_HPP
 
 #include <fstream>
 #include <functional>
