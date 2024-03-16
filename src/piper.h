@@ -1,5 +1,5 @@
-#ifndef PIPER_H
-#define PIPER_H
+#ifndef PIPER_H_
+#define PIPER_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,4 +20,4 @@ EXPORT char* generate_speech(const char* modelPath, const char* prompt);
 }
 #endif
 
-#endif // PIPER_H
+#endif // PIPER_H_

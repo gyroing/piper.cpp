@@ -1,5 +1,5 @@
-#ifndef PIPER_HPP
-#define PIPER_HPP
+#ifndef PIPER_HPP_
+#define PIPER_HPP_
 
 #include <fstream>
 #include <functional>
@@ -124,4 +124,4 @@ void textToWavFile(PiperConfig &config, Voice &voice, std::string text,
 
 } // namespace piper
 
-#endif // PIPER_H_
+#endif // PIPER_HPP_
