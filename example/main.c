@@ -9,8 +9,13 @@
 #endif
 
 int main(int argc, char *argv[]) {
-    char *modelPath = "./en_US-curie-high-V2.onnx";
-    char *inputText = "Hello world. This is a test of the curie AI voice model.";
+    if (argc != 3) {
+        fprintf(stderr, "Usage: %s <modelPath> <inputText>\n", argv[0]);
+        return 1;
+    }
+
+    char *modelPath = argv[1];
+    char *inputText = argv[2];
 
     // Generate speech
     char *wavFilePath = generate_speech(modelPath, inputText);

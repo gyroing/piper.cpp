@@ -20,3 +20,6 @@ htmlcov
 
 .venv/
 lightning_logs/
+
+**.onnx
+**.onnx.json
