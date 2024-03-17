@@ -9,7 +9,6 @@
 
 #include <espeak-ng/speak_lib.h>
 #include <onnxruntime_cxx_api.h>
-#include <spdlog/spdlog.h>
 
 #include "json.hpp"
 #include "piper.h"
@@ -42,8 +41,8 @@ EXPORT char* generate_speech(const char* modelPath, const char* prompt) {
     auto exePath = filesystem::canonical("/proc/self/exe");
 
     if (voice.phonemizeConfig.phonemeType == piper::eSpeakPhonemes) {
-      spdlog::debug("Voice uses eSpeak phonemes ({})",
-                    voice.phonemizeConfig.eSpeak.voice);
+      printf("Voice uses eSpeak phonemes (%s)\n",
+                voice.phonemizeConfig.eSpeak.voice.c_str());
 
       // Assume next to piper executable
       piperConfig.eSpeakDataPath =
@@ -51,8 +50,8 @@ EXPORT char* generate_speech(const char* modelPath, const char* prompt) {
               exePath.parent_path().append("espeak-ng-data"))
               .string();
 
-      spdlog::debug("espeak-ng-data directory is expected at {}",
-                    piperConfig.eSpeakDataPath);
+      printf("espeak-ng-data directory is expected at %s\n",
+                piperConfig.eSpeakDataPath.c_str());
     } else {
       // Not using eSpeak
       piperConfig.useESpeak = false;
@@ -145,8 +144,8 @@ void parsePhonemizeConfig(json &configRoot, PhonemizeConfig &phonemizeConfig) {
           idsStr << toId << ",";
         }
 
-        spdlog::error("\"{}\" is not a single codepoint (ids={})", fromPhoneme,
-                      idsStr.str());
+        fprintf(stderr, "\"%s\" is not a single codepoint (ids=%s)\n",
+                fromPhoneme.c_str(), idsStr.str().c_str());
         throw std::runtime_error(
             "Phonemes must be one codepoint (phoneme id map)");
       }
@@ -170,7 +169,8 @@ void parsePhonemizeConfig(json &configRoot, PhonemizeConfig &phonemizeConfig) {
     for (auto &fromPhonemeItem : phonemeMapValue.items()) {
       std::string fromPhoneme = fromPhonemeItem.key();
       if (!isSingleCodepoint(fromPhoneme)) {
-        spdlog::error("\"{}\" is not a single codepoint", fromPhoneme);
+        fprintf(stderr, "\"%s\" is not a single codepoint\n",
+                fromPhoneme.c_str());
         throw std::runtime_error(
             "Phonemes must be one codepoint (phoneme map)");
       }
@@ -238,7 +238,8 @@ void parseSynthesisConfig(json &configRoot, SynthesisConfig &synthesisConfig) {
       for (auto &phonemeItem : phonemeSilenceValue.items()) {
         std::string phonemeStr = phonemeItem.key();
         if (!isSingleCodepoint(phonemeStr)) {
-          spdlog::error("\"{}\" is not a single codepoint", phonemeStr);
+          fprintf(stderr, "\"%s\" is not a single codepoint\n",
+                  phonemeStr.c_str());
           throw std::runtime_error(
               "Phonemes must be one codepoint (phoneme silence)");
         }
@@ -277,7 +278,7 @@ void initialize(PiperConfig &config) {
   if (config.useESpeak) {
     // Set up espeak-ng for calling espeak_TextToPhonemesWithTerminator
     // See: https://github.com/rhasspy/espeak-ng
-    spdlog::debug("Initializing eSpeak");
+    printf("Initializing eSpeak\n");
     int result = espeak_Initialize(AUDIO_OUTPUT_SYNCHRONOUS,
                                    /*buflength*/ 0,
                                    /*path*/ config.eSpeakDataPath.c_str(),
@@ -286,25 +287,25 @@ void initialize(PiperConfig &config) {
       throw std::runtime_error("Failed to initialize eSpeak-ng");
     }
 
-    spdlog::debug("Initialized eSpeak");
+    printf("Initialized eSpeak\n");
   }
 
-  spdlog::info("Initialized piper");
+  printf("Initialized piper\n");
 }
 
 void terminate(PiperConfig &config) {
   if (config.useESpeak) {
     // Clean up espeak-ng
-    spdlog::debug("Terminating eSpeak");
+    printf("Terminating eSpeak\n");
     espeak_Terminate();
-    spdlog::debug("Terminated eSpeak");
+    printf("Terminated eSpeak\n");
   }
 
-  spdlog::info("Terminated piper");
+  printf("Terminated piper\n");
 }
 
 void loadModel(std::string modelPath, ModelSession &session, bool useCuda) {
-  spdlog::debug("Loading onnx model from {}", modelPath);
+  printf("Loading onnx model from %s\n", modelPath.c_str());
   session.env = Ort::Env(OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
                          instanceName.c_str());
   session.env.DisableTelemetryEvents();
@@ -345,15 +346,15 @@ void loadModel(std::string modelPath, ModelSession &session, bool useCuda) {
   session.onnx = Ort::Session(session.env, modelPathStr, session.options);
 
   auto endTime = std::chrono::steady_clock::now();
-  spdlog::debug("Loaded onnx model in {} second(s)",
-                std::chrono::duration<double>(endTime - startTime).count());
+  printf("Loaded onnx model in %f second(s)\n",
+         std::chrono::duration<double>(endTime - startTime).count());
 }
 
 // Load Onnx model and JSON config file
 void loadVoice(PiperConfig &config, std::string modelPath,
                std::string modelConfigPath, Voice &voice,
                std::optional<SpeakerId> &speakerId, bool useCuda) {
-  spdlog::debug("Parsing voice config at {}", modelConfigPath);
+  printf("Parsing voice config at %s\n", modelConfigPath.c_str());
   std::ifstream modelConfigFile(modelConfigPath);
   voice.configRoot = json::parse(modelConfigFile);
 
@@ -371,7 +372,7 @@ void loadVoice(PiperConfig &config, std::string modelPath,
     }
   }
 
-  spdlog::debug("Voice contains {} speaker(s)", voice.modelConfig.numSpeakers);
+  printf("Voice contains %d speaker(s)\n", voice.modelConfig.numSpeakers);
 
   loadModel(modelPath, voice.session, useCuda);
 
@@ -381,7 +382,7 @@ void loadVoice(PiperConfig &config, std::string modelPath,
 void synthesize(std::vector<PhonemeId> &phonemeIds,
                 SynthesisConfig &synthesisConfig, ModelSession &session,
                 std::vector<int16_t> &audioBuffer, SynthesisResult &result) {
-  spdlog::debug("Synthesizing audio for {} phoneme id(s)", phonemeIds.size());
+  printf("Synthesizing audio for %d phoneme id(s)\n", phonemeIds.size());
 
   auto memoryInfo = Ort::MemoryInfo::CreateCpu(
       OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);
@@ -448,8 +449,8 @@ void synthesize(std::vector<PhonemeId> &phonemeIds,
   if (result.audioSeconds > 0) {
     result.realTimeFactor = result.inferSeconds / result.audioSeconds;
   }
-  spdlog::debug("Synthesized {} second(s) of audio in {} second(s)",
-                result.audioSeconds, result.inferSeconds);
+  printf("Synthesized %f second(s) of audio in %f second(s)\n",
+         result.audioSeconds, result.inferSeconds);
 
   // Get max audio value for scaling
   float maxAudioValue = 0.01f;
@@ -499,7 +500,7 @@ void textToAudio(PiperConfig &config, Voice &voice, std::string text,
   }
 
   // Phonemes for each sentence
-  spdlog::debug("Phonemizing text: {}", text);
+  printf("Phonemizing text: %s\n", text.c_str());
   std::vector<std::vector<Phoneme>> phonemes;
 
   if (voice.phonemizeConfig.phonemeType == eSpeakPhonemes) {
@@ -519,17 +520,6 @@ void textToAudio(PiperConfig &config, Voice &voice, std::string text,
   for (auto phonemesIter = phonemes.begin(); phonemesIter != phonemes.end();
        ++phonemesIter) {
     std::vector<Phoneme> &sentencePhonemes = *phonemesIter;
-
-    if (spdlog::should_log(spdlog::level::debug)) {
-      // DEBUG log for phonemes
-      std::string phonemesStr;
-      for (auto phoneme : sentencePhonemes) {
-        utf8::append(phoneme, std::back_inserter(phonemesStr));
-      }
-
-      spdlog::debug("Converting {} phoneme(s) to ids: {}",
-                    sentencePhonemes.size(), phonemesStr);
-    }
 
     std::vector<std::shared_ptr<std::vector<Phoneme>>> phrasePhonemes;
     std::vector<SynthesisResult> phraseResults;
@@ -589,17 +579,6 @@ void textToAudio(PiperConfig &config, Voice &voice, std::string text,
       // phonemes -> ids
       phonemes_to_ids(*(phrasePhonemes[phraseIdx]), idConfig, phonemeIds,
                       missingPhonemes);
-      if (spdlog::should_log(spdlog::level::debug)) {
-        // DEBUG log for phoneme ids
-        std::stringstream phonemeIdsStr;
-        for (auto phonemeId : phonemeIds) {
-          phonemeIdsStr << phonemeId << ", ";
-        }
-
-        spdlog::debug("Converted {} phoneme(s) to {} phoneme id(s): {}",
-                      phrasePhonemes[phraseIdx]->size(), phonemeIds.size(),
-                      phonemeIdsStr.str());
-      }
 
       // ids -> audio
       synthesize(phonemeIds, voice.synthesisConfig, voice.session, audioBuffer,
@@ -633,14 +612,14 @@ void textToAudio(PiperConfig &config, Voice &voice, std::string text,
   }
 
   if (missingPhonemes.size() > 0) {
-    spdlog::warn("Missing {} phoneme(s) from phoneme/id map!",
-                 missingPhonemes.size());
+    printf("Missing %zu phoneme(s) from phoneme/id map!\n",
+           missingPhonemes.size());
 
     for (auto phonemeCount : missingPhonemes) {
       std::string phonemeStr;
       utf8::append(phonemeCount.first, std::back_inserter(phonemeStr));
-      spdlog::warn("Missing \"{}\" (\\u{:04X}): {} time(s)", phonemeStr,
-                   (uint32_t)phonemeCount.first, phonemeCount.second);
+      printf("Missing \"%s\" (\\u%04X): %zu time(s)\n", phonemeStr.c_str(),
+             (uint32_t)phonemeCount.first, phonemeCount.second);
     }
   }
 

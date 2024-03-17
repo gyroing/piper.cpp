@@ -43,24 +43,6 @@ add_library(
 
 include(ExternalProject)
 
-# ---- spdlog ---
-
-if(NOT DEFINED SPDLOG_DIR)
-  set(SPDLOG_DIR "${CMAKE_CURRENT_BINARY_DIR}/si")
-  set(SPDLOG_VERSION "1.12.0")
-  ExternalProject_Add(
-    spdlog_external
-    PREFIX "${CMAKE_CURRENT_BINARY_DIR}/s"
-    URL "https://github.com/gabime/spdlog/archive/refs/tags/v${SPDLOG_VERSION}.zip"
-    CMAKE_ARGS 
-      -DCMAKE_INSTALL_PREFIX:PATH=${SPDLOG_DIR}
-      -DCMAKE_C_FLAGS="-fPIC"
-      -DCMAKE_CXX_FLAGS="-fPIC"
-      -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-  )
-  add_dependencies(piper spdlog_external)
-endif()
-
 # ---- onnxruntime ---
 
 # Look for onnxruntime files in <root>/lib
