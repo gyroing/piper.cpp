@@ -141,23 +141,17 @@ if((NOT MSVC) AND (NOT APPLE))
 endif()
 
 target_link_libraries(piper
-  fmt
-  spdlog
   espeak-ng
   onnxruntime
 )
 
 target_link_directories(piper PUBLIC
-  ${FMT_DIR}/lib
-  ${SPDLOG_DIR}/lib
   ${ESPEAK_NG_DIR}/lib
   ${ONNXRUNTIME_DIR}/lib
 )
 
 target_include_directories(piper PUBLIC
   "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>"
-  ${FMT_DIR}/include
-  ${SPDLOG_DIR}/include
   ${ESPEAK_NG_DIR}/include
   ${ONNXRUNTIME_DIR}/include
 )
@@ -194,12 +188,3 @@ install(
     DIRECTORY ${ONNXRUNTIME_DIR}/include/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
-
-# This line seems to be redundant with the ONNX Runtime library files installation above,
-# so consider removing it if ${ONNXRUNTIME_DIR}/lib/ already covers the required files.
-# install(
-#     DIRECTORY ${ONNXRUNTIME_DIR}/lib/
-#     DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#     FILES_MATCHING
-#     PATTERN "*.lib"
-# )

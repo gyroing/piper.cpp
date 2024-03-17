@@ -36,19 +36,11 @@ EXPORT char* piper_generate_speech(const char* modelPath, const char* prompt) {
     // Example model loading, adapt as necessary
     loadVoice(model_path, model_path + ".json", voice, speakerId, false);
 
-    auto exePath = filesystem::canonical("/proc/self/exe");
-
-    bool useESpeak = false;
-
-    if (voice.phonemizeConfig.phonemeType == piper::eSpeakPhonemes) {
-      useESpeak = true;
-    }
-
     // Generate the WAV file.
     fs::path output_path = fs::temp_directory_path() / "output.wav";
     ofstream audio_file(output_path, ios::binary);
     piper::SynthesisResult result;
-    piper::textToWavFile(voice, text_prompt, audio_file, result, useESpeak);
+    piper::textToWavFile(voice, text_prompt, audio_file, result);
 
     // Allocate memory on the heap for the file path to return.
     // The caller is responsible for freeing this memory.
@@ -443,7 +435,7 @@ void synthesize(std::vector<PhonemeId> &phonemeIds,
 // ----------------------------------------------------------------------------
 
 // Phonemize text and synthesize audio
-void textToAudio(Voice &voice, std::string text, std::vector<int16_t> &audioBuffer, SynthesisResult &result, const std::function<void()> &audioCallback, bool useESpeak) {
+void textToAudio(Voice &voice, std::string text, std::vector<int16_t> &audioBuffer, SynthesisResult &result, const std::function<void()> &audioCallback) {
 
   std::size_t sentenceSilenceSamples = 0;
   if (voice.synthesisConfig.sentenceSilenceSeconds > 0) {
@@ -584,10 +576,10 @@ void textToAudio(Voice &voice, std::string text, std::vector<int16_t> &audioBuff
 
 // Phonemize text and synthesize audio to WAV file
 void textToWavFile(Voice &voice, std::string text,
-                   std::ostream &audioFile, SynthesisResult &result, bool useESpeak) {
+                   std::ostream &audioFile, SynthesisResult &result) {
 
   std::vector<int16_t> audioBuffer;
-  textToAudio(voice, text, audioBuffer, result, NULL, useESpeak);
+  textToAudio(voice, text, audioBuffer, result, NULL);
 
   // Write WAV
   auto synthesisConfig = voice.synthesisConfig;

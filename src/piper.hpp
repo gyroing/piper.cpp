@@ -101,11 +101,11 @@ void loadVoice(std::string modelPath,
 // Phonemize text and synthesize audio
 void textToAudio(Voice &voice, std::string text,
                  std::vector<int16_t> &audioBuffer, SynthesisResult &result,
-                 const std::function<void()> &audioCallback, bool useESpeak);
+                 const std::function<void()> &audioCallback);
 
 // Phonemize text and synthesize audio to WAV file
 void textToWavFile(Voice &voice, std::string text,
-                   std::ostream &audioFile, SynthesisResult &result, bool useESpeak);
+                   std::ostream &audioFile, SynthesisResult &result);
 
 } // namespace piper
 
