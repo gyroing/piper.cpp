@@ -41,26 +41,7 @@ add_library(
   src/phoneme_ids.cpp
 )
 
-# ---- fmt ---
-
-if(NOT DEFINED FMT_DIR)
-  set(FMT_VERSION "10.0.0")
-  set(FMT_DIR "${CMAKE_CURRENT_BINARY_DIR}/fi")
-
-  include(ExternalProject)
-  ExternalProject_Add(
-    fmt_external
-    PREFIX "${CMAKE_CURRENT_BINARY_DIR}/f"
-    URL "https://github.com/fmtlib/fmt/archive/refs/tags/${FMT_VERSION}.zip"
-    CMAKE_ARGS 
-      -DCMAKE_INSTALL_PREFIX:PATH=${FMT_DIR}
-      -DFMT_TEST:BOOL=OFF  # Don't build all the tests
-      -DCMAKE_C_FLAGS="-fPIC"
-      -DCMAKE_CXX_FLAGS="-fPIC"
-      -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-  )
-  add_dependencies(piper fmt_external)
-endif()
+include(ExternalProject)
 
 # ---- spdlog ---
 
