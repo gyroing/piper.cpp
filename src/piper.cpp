@@ -7,7 +7,6 @@
 #include <sstream>
 #include <stdexcept>
 
-#include <espeak-ng/speak_lib.h>
 #include <onnxruntime_cxx_api.h>
 
 #include "json.hpp"
@@ -56,8 +55,6 @@ EXPORT char* piper_generate_speech(const char* modelPath, const char* prompt) {
       // Not using eSpeak
       piperConfig.useESpeak = false;
     }
-
-    piper::initialize(piperConfig);
 
     // Generate the WAV file.
     fs::path output_path = fs::temp_directory_path() / "output.wav";
@@ -273,36 +270,6 @@ void parseModelConfig(json &configRoot, ModelConfig &modelConfig) {
   }
 
 } /* parseModelConfig */
-
-void initialize(PiperConfig &config) {
-  if (config.useESpeak) {
-    // Set up espeak-ng for calling espeak_TextToPhonemesWithTerminator
-    // See: https://github.com/rhasspy/espeak-ng
-    printf("Initializing eSpeak\n");
-    int result = espeak_Initialize(AUDIO_OUTPUT_SYNCHRONOUS,
-                                   /*buflength*/ 0,
-                                   /*path*/ config.eSpeakDataPath.c_str(),
-                                   /*options*/ 0);
-    if (result < 0) {
-      throw std::runtime_error("Failed to initialize eSpeak-ng");
-    }
-
-    printf("Initialized eSpeak\n");
-  }
-
-  printf("Initialized piper\n");
-}
-
-void terminate(PiperConfig &config) {
-  if (config.useESpeak) {
-    // Clean up espeak-ng
-    printf("Terminating eSpeak\n");
-    espeak_Terminate();
-    printf("Terminated eSpeak\n");
-  }
-
-  printf("Terminated piper\n");
-}
 
 void loadModel(std::string modelPath, ModelSession &session, bool useCuda) {
   printf("Loading onnx model from %s\n", modelPath.c_str());

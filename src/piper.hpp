@@ -102,12 +102,6 @@ Phoneme getCodepoint(std::string s);
 // Get version of Piper
 std::string getVersion();
 
-// Must be called before using textTo* functions
-void initialize(PiperConfig &config);
-
-// Clean up
-void terminate(PiperConfig &config);
-
 // Load Onnx model and JSON config file
 void loadVoice(PiperConfig &config, std::string modelPath,
                std::string modelConfigPath, Voice &voice,

@@ -48,9 +48,7 @@ struct eSpeakPhonemeConfig {
 // Returns phonemes for each sentence as a separate std::vector.
 //
 // Assumes espeak_Initialize has already been called.
-void
-phonemize_eSpeak(std::string text, eSpeakPhonemeConfig &config,
-                 std::vector<std::vector<Phoneme>> &phonemes);
+void phonemize_eSpeak(std::string text, eSpeakPhonemeConfig &config, std::vector<std::vector<Phoneme>> &phonemes);
 
 enum TextCasing {
   CASING_IGNORE = 0,

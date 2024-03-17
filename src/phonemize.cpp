@@ -4,8 +4,12 @@
 
 #include <espeak-ng/speak_lib.h>
 
+#include "piper.hpp"
 #include "phonemize.hpp"
 #include "uni_algo.h"
+
+using json = nlohmann::json;
+using namespace std;
 
 namespace piper {
 
@@ -13,13 +17,23 @@ namespace piper {
 std::map<std::string, PhonemeMap> DEFAULT_PHONEME_MAP = {
     {"pt-br", {{U'c', {U'k'}}}}};
 
-void
-phonemize_eSpeak(std::string text, eSpeakPhonemeConfig &config,
+void phonemize_eSpeak(std::string text, eSpeakPhonemeConfig &config,
                  std::vector<std::vector<Phoneme>> &phonemes) {
+  printf("phonemize_eSpeak\n");
+  auto exePath = filesystem::canonical("/proc/self/exe");
+  auto path = filesystem::absolute(exePath.parent_path().append("espeak-ng-data")).c_str();
+
+  int init_result = espeak_Initialize(AUDIO_OUTPUT_SYNCHRONOUS,
+                                 /*buflength*/ 0,
+                                 /*path*/ path,
+                                 /*options*/ 0);
+  if (init_result < 0) {
+    throw std::runtime_error("Failed to initialize eSpeak-ng");
+  }
 
   auto voice = config.voice;
-  int result = espeak_SetVoiceByName(voice.c_str());
-  if (result != 0) {
+  int set_result = espeak_SetVoiceByName(voice.c_str());
+  if (set_result != 0) {
     throw std::runtime_error("Failed to set eSpeak-ng voice");
   }
 
@@ -130,12 +144,13 @@ phonemize_eSpeak(std::string text, eSpeakPhonemeConfig &config,
 
   } // while inputTextPointer != NULL
 
+
+  espeak_Terminate();
 } /* phonemize_eSpeak */
 
 // ----------------------------------------------------------------------------
 
-void
-phonemize_codepoints(std::string text, CodepointsPhonemeConfig &config,
+void phonemize_codepoints(std::string text, CodepointsPhonemeConfig &config,
                      std::vector<std::vector<Phoneme>> &phonemes) {
 
   if (config.casing == CASING_LOWER) {
