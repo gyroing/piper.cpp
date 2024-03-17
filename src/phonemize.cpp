@@ -20,12 +20,15 @@ std::map<std::string, PhonemeMap> DEFAULT_PHONEME_MAP = {
 void phonemize_eSpeak(std::string text, eSpeakPhonemeConfig &config,
                  std::vector<std::vector<Phoneme>> &phonemes) {
   printf("phonemize_eSpeak\n");
+  // Get the canonical path of the executable or DLL file
   auto exePath = filesystem::canonical("/proc/self/exe");
-  auto path = filesystem::absolute(exePath.parent_path().append("espeak-ng-data")).c_str();
+  
+  // Navigate up one directory from the executable, then into ../share/espeak-ng-data
+  auto path = exePath.parent_path().parent_path() / "share" / "espeak-ng-data";
 
   int init_result = espeak_Initialize(AUDIO_OUTPUT_SYNCHRONOUS,
                                  /*buflength*/ 0,
-                                 /*path*/ path,
+                                 /*path*/ path.c_str(),
                                  /*options*/ 0);
   if (init_result < 0) {
     throw std::runtime_error("Failed to initialize eSpeak-ng");
