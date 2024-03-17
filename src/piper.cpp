@@ -329,7 +329,7 @@ void loadVoice(std::string modelPath,
 void synthesize(std::vector<PhonemeId> &phonemeIds,
                 SynthesisConfig &synthesisConfig, ModelSession &session,
                 std::vector<int16_t> &audioBuffer, SynthesisResult &result) {
-  printf("Synthesizing audio for %d phoneme id(s)\n", phonemeIds.size());
+  printf("Synthesizing audio for %d phoneme id(s)\n", (int) phonemeIds.size());
 
   auto memoryInfo = Ort::MemoryInfo::CreateCpu(
       OrtAllocatorType::OrtArenaAllocator, OrtMemType::OrtMemTypeDefault);

@@ -151,7 +151,6 @@ target_link_directories(piper PUBLIC
 )
 
 target_include_directories(piper PUBLIC
-  "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>"
   ${ESPEAK_NG_DIR}/include
   ${ONNXRUNTIME_DIR}/include
 )
