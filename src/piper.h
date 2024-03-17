@@ -14,7 +14,7 @@ extern "C" {
 // Function to generate speech from text.
 // Returns a heap-allocated string with the path to the generated WAV file.
 // The caller is responsible for freeing the string.
-EXPORT char* generate_speech(const char* modelPath, const char* prompt);
+EXPORT char* piper_generate_speech(const char* modelPath, const char* prompt);
 
 #ifdef __cplusplus
 }

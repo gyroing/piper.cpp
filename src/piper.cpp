@@ -22,7 +22,7 @@ namespace fs = std::filesystem;
 
 extern "C" {
 
-EXPORT char* generate_speech(const char* modelPath, const char* prompt) {
+EXPORT char* piper_generate_speech(const char* modelPath, const char* prompt) {
     // Simplified logic from the main program to generate speech.
     // This example assumes that other necessary initialization and cleanup are handled elsewhere.
     

@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     char *inputText = argv[2];
 
     // Generate speech
-    char *wavFilePath = generate_speech(modelPath, inputText);
+    char *wavFilePath = piper_generate_speech(modelPath, inputText);
     if (wavFilePath == NULL) {
         fprintf(stderr, "Failed to generate speech\n");
         return 1;
