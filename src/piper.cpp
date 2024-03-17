@@ -105,7 +105,7 @@ void parsePhonemizeConfig(json &configRoot, PhonemizeConfig &phonemizeConfig) {
   if (configRoot.contains("espeak")) {
     auto espeakValue = configRoot["espeak"];
     if (espeakValue.contains("voice")) {
-      phonemizeConfig.eSpeak.voice = espeakValue["voice"].get<std::string>();
+      phonemizeConfig.locale = espeakValue["voice"].get<std::string>();
     }
   }
 
@@ -459,7 +459,7 @@ void textToAudio(Voice &voice, std::string text, std::vector<int16_t> &audioBuff
   if (voice.phonemizeConfig.phonemeType == eSpeakPhonemes) {
     // Use espeak-ng for phonemization
     eSpeakPhonemeConfig eSpeakConfig;
-    eSpeakConfig.voice = voice.phonemizeConfig.eSpeak.voice;
+    eSpeakConfig.locale = voice.phonemizeConfig.locale;
     phonemize_eSpeak(text, eSpeakConfig, phonemes);
   } else {
     // Use UTF-8 codepoints as "phonemes"

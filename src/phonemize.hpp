@@ -28,7 +28,7 @@ typedef char32_t Phoneme;
 typedef std::map<Phoneme, std::vector<Phoneme>> PhonemeMap;
 
 struct eSpeakPhonemeConfig {
-  std::string voice = "en-us";
+  std::string locale = "en-us";
 
   Phoneme period = U'.';      // CLAUSE_PERIOD
   Phoneme comma = U',';       // CLAUSE_COMMA

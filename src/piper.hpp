@@ -20,10 +20,6 @@ namespace piper {
 
 typedef int64_t SpeakerId;
 
-struct eSpeakConfig {
-  std::string voice = "en-us";
-};
-
 enum PhonemeType { eSpeakPhonemes, TextPhonemes };
 
 struct PhonemizeConfig {
@@ -36,7 +32,7 @@ struct PhonemizeConfig {
   PhonemeId idEos = 2; // end of sentence
   bool interspersePad = true;
 
-  eSpeakConfig eSpeak;
+  std::string locale = "en-us";
 };
 
 struct SynthesisConfig {
