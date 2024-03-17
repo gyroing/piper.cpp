@@ -1,7 +1,7 @@
 .PHONY: clean docker example
 
 all:
-	cmake -Bbuild -DCMAKE_INSTALL_PREFIX=install
+	cmake -Bbuild
 	cmake --build build --config Release
 	cmake --install build
 

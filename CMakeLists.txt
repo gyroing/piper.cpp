@@ -8,6 +8,8 @@ project(
   LANGUAGES CXX
 )
 
+set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/install")
+
 # Set C++ standard to C++17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -168,11 +170,16 @@ install(
 
 # Dependencies
 install(
-    DIRECTORY ${ESPEAK_NG_DIR}/
-    DESTINATION ${CMAKE_INSTALL_PREFIX}
+    DIRECTORY ${ESPEAK_NG_DIR}/lib/
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
     FILES_MATCHING
     PATTERN "*.dll"
     PATTERN "*.so*"
+)
+
+install(
+    DIRECTORY ${ESPEAK_NG_DIR}/share/
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/../share/
 )
 
 install(
