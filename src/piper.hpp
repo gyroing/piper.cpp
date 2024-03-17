@@ -24,11 +24,6 @@ struct eSpeakConfig {
   std::string voice = "en-us";
 };
 
-struct PiperConfig {
-  std::string eSpeakDataPath;
-  bool useESpeak = true;
-};
-
 enum PhonemeType { eSpeakPhonemes, TextPhonemes };
 
 struct PhonemizeConfig {
@@ -103,18 +98,18 @@ Phoneme getCodepoint(std::string s);
 std::string getVersion();
 
 // Load Onnx model and JSON config file
-void loadVoice(PiperConfig &config, std::string modelPath,
+void loadVoice(std::string modelPath,
                std::string modelConfigPath, Voice &voice,
                std::optional<SpeakerId> &speakerId, bool useCuda);
 
 // Phonemize text and synthesize audio
-void textToAudio(PiperConfig &config, Voice &voice, std::string text,
+void textToAudio(Voice &voice, std::string text,
                  std::vector<int16_t> &audioBuffer, SynthesisResult &result,
-                 const std::function<void()> &audioCallback);
+                 const std::function<void()> &audioCallback, bool useESpeak);
 
 // Phonemize text and synthesize audio to WAV file
-void textToWavFile(PiperConfig &config, Voice &voice, std::string text,
-                   std::ostream &audioFile, SynthesisResult &result);
+void textToWavFile(Voice &voice, std::string text,
+                   std::ostream &audioFile, SynthesisResult &result, bool useESpeak);
 
 } // namespace piper
 

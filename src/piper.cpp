@@ -32,35 +32,23 @@ EXPORT char* piper_generate_speech(const char* modelPath, const char* prompt) {
     // Load the model and prepare for synthesis.
     // This is a simplified example. You should adapt it according to your specific requirements.
     std::optional<piper::SpeakerId> speakerId;
-    piper::PiperConfig piperConfig;
     piper::Voice voice;
     // Example model loading, adapt as necessary
-    loadVoice(piperConfig, model_path, model_path + ".json", voice, speakerId, false);
+    loadVoice(model_path, model_path + ".json", voice, speakerId, false);
 
     auto exePath = filesystem::canonical("/proc/self/exe");
 
+    bool useESpeak = false;
+
     if (voice.phonemizeConfig.phonemeType == piper::eSpeakPhonemes) {
-      printf("Voice uses eSpeak phonemes (%s)\n",
-                voice.phonemizeConfig.eSpeak.voice.c_str());
-
-      // Assume next to piper executable
-      piperConfig.eSpeakDataPath =
-          std::filesystem::absolute(
-              exePath.parent_path().append("espeak-ng-data"))
-              .string();
-
-      printf("espeak-ng-data directory is expected at %s\n",
-                piperConfig.eSpeakDataPath.c_str());
-    } else {
-      // Not using eSpeak
-      piperConfig.useESpeak = false;
+      useESpeak = true;
     }
 
     // Generate the WAV file.
     fs::path output_path = fs::temp_directory_path() / "output.wav";
     ofstream audio_file(output_path, ios::binary);
     piper::SynthesisResult result;
-    piper::textToWavFile(piperConfig, voice, text_prompt, audio_file, result);
+    piper::textToWavFile(voice, text_prompt, audio_file, result, useESpeak);
 
     // Allocate memory on the heap for the file path to return.
     // The caller is responsible for freeing this memory.
@@ -318,7 +306,7 @@ void loadModel(std::string modelPath, ModelSession &session, bool useCuda) {
 }
 
 // Load Onnx model and JSON config file
-void loadVoice(PiperConfig &config, std::string modelPath,
+void loadVoice(std::string modelPath,
                std::string modelConfigPath, Voice &voice,
                std::optional<SpeakerId> &speakerId, bool useCuda) {
   printf("Parsing voice config at %s\n", modelConfigPath.c_str());
@@ -455,9 +443,7 @@ void synthesize(std::vector<PhonemeId> &phonemeIds,
 // ----------------------------------------------------------------------------
 
 // Phonemize text and synthesize audio
-void textToAudio(PiperConfig &config, Voice &voice, std::string text,
-                 std::vector<int16_t> &audioBuffer, SynthesisResult &result,
-                 const std::function<void()> &audioCallback) {
+void textToAudio(Voice &voice, std::string text, std::vector<int16_t> &audioBuffer, SynthesisResult &result, const std::function<void()> &audioCallback, bool useESpeak) {
 
   std::size_t sentenceSilenceSamples = 0;
   if (voice.synthesisConfig.sentenceSilenceSeconds > 0) {
@@ -597,11 +583,11 @@ void textToAudio(PiperConfig &config, Voice &voice, std::string text,
 } /* textToAudio */
 
 // Phonemize text and synthesize audio to WAV file
-void textToWavFile(PiperConfig &config, Voice &voice, std::string text,
-                   std::ostream &audioFile, SynthesisResult &result) {
+void textToWavFile(Voice &voice, std::string text,
+                   std::ostream &audioFile, SynthesisResult &result, bool useESpeak) {
 
   std::vector<int16_t> audioBuffer;
-  textToAudio(config, voice, text, audioBuffer, result, NULL);
+  textToAudio(voice, text, audioBuffer, result, NULL, useESpeak);
 
   // Write WAV
   auto synthesisConfig = voice.synthesisConfig;
