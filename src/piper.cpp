@@ -21,7 +21,9 @@ using json = nlohmann::json;
 using namespace std;
 namespace fs = std::filesystem;
 
-extern "C" EXPORT char* generate_speech(const char* modelPath, const char* prompt) {
+extern "C" {
+
+EXPORT char* generate_speech(const char* modelPath, const char* prompt) {
     // Simplified logic from the main program to generate speech.
     // This example assumes that other necessary initialization and cleanup are handled elsewhere.
     
@@ -31,11 +33,32 @@ extern "C" EXPORT char* generate_speech(const char* modelPath, const char* promp
 
     // Load the model and prepare for synthesis.
     // This is a simplified example. You should adapt it according to your specific requirements.
-    std::optional<piper::SpeakerId> speakerId = 0;
+    std::optional<piper::SpeakerId> speakerId;
     piper::PiperConfig piperConfig;
     piper::Voice voice;
     // Example model loading, adapt as necessary
     loadVoice(piperConfig, model_path, model_path + ".json", voice, speakerId, false);
+
+    auto exePath = filesystem::canonical("/proc/self/exe");
+
+    if (voice.phonemizeConfig.phonemeType == piper::eSpeakPhonemes) {
+      spdlog::debug("Voice uses eSpeak phonemes ({})",
+                    voice.phonemizeConfig.eSpeak.voice);
+
+      // Assume next to piper executable
+      piperConfig.eSpeakDataPath =
+          std::filesystem::absolute(
+              exePath.parent_path().append("espeak-ng-data"))
+              .string();
+
+      spdlog::debug("espeak-ng-data directory is expected at {}",
+                    piperConfig.eSpeakDataPath);
+    } else {
+      // Not using eSpeak
+      piperConfig.useESpeak = false;
+    }
+
+    piper::initialize(piperConfig);
 
     // Generate the WAV file.
     fs::path output_path = fs::temp_directory_path() / "output.wav";
@@ -48,6 +71,8 @@ extern "C" EXPORT char* generate_speech(const char* modelPath, const char* promp
     char* wav_file_path = strdup(output_path.string().c_str());
     return wav_file_path;
 }
+
+} // extern "C"
 
 namespace piper {
 

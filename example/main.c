@@ -9,29 +9,8 @@
 #endif
 
 int main(int argc, char *argv[]) {
-    // Check for correct argument count
-    if (argc != 3) {
-        fprintf(stderr, "Usage: %s -m <path_to_model>\n", argv[0]);
-        return 1;
-    }
-
-    // Verify the model path flag
-    if (strcmp(argv[1], "-m") != 0) {
-        fprintf(stderr, "Expected -m flag\n");
-        return 1;
-    }
-
-    char *modelPath = argv[2];
-    char inputText[1024];
-
-    // Read input text from stdin
-    if (fgets(inputText, sizeof(inputText), stdin) == NULL) {
-        fprintf(stderr, "Failed to read input text\n");
-        return 1;
-    }
-
-    // Remove newline character if present
-    inputText[strcspn(inputText, "\n")] = 0;
+    char *modelPath = "./en_US-curie-high-V2.onnx";
+    char *inputText = "Hello world. This is a test of the curie AI voice model.";
 
     // Generate speech
     char *wavFilePath = generate_speech(modelPath, inputText);

@@ -13,7 +13,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_subdirectory(.. piper)
 
 # Add the executable
-add_executable(piper_cli main.cpp)
+add_executable(piper_cli main.c)
 
 # Link the executable to the piper library
 target_link_libraries(piper_cli piper)
