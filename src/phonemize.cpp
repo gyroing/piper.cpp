@@ -29,20 +29,18 @@ char* get_espeak_data_path() {
   // Get the canonical path of the executable or DLL file
   auto exePath = filesystem::canonical("/proc/self/exe");
 
-  printf("exePath: %s\n", exePath.c_str());
+  std::filesystem::path datapath;
 
-  // Navigate up one directory from the executable
-  auto parentPath = exePath.parent_path();
-
-  #ifndef FLUTTER_BUILD
-    // Navigate up one directory from the executable
-    parentPath = parentPath.parent_path();
-  #endif
-  
-  // then into ../share/espeak-ng-data
-  auto datapath = parentPath / "share" / "espeak-ng-data";
-
-  printf("datapath: %s\n", datapath.c_str());
+  // check if we are in the correct directory
+  if (filesystem::exists(exePath.parent_path() / "share" / "espeak-ng-data")) {
+    datapath = exePath.parent_path() / "share" / "espeak-ng-data";
+  } 
+  else if (filesystem::exists(exePath.parent_path().parent_path() / "share" / "espeak-ng-data")) {
+    datapath = exePath.parent_path().parent_path() / "share" / "espeak-ng-data";
+  } 
+  else {
+    throw std::runtime_error("Failed to find espeak-ng data directory");
+  }
 
   #ifdef _WIN32
     // Get the path as a wide string
@@ -56,8 +54,6 @@ char* get_espeak_data_path() {
     // Convert to C string
     path = strdup(datapath.c_str());
   #endif
-  
-  printf("path: %s\n", path);
 
   return path;
 }
