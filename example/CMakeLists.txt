@@ -15,8 +15,12 @@ add_subdirectory(.. piper)
 # Add the executable
 add_executable(piper_cli main.c)
 
+if(WIN32)
+    target_link_libraries(piper_cli PRIVATE winmm)
+endif()
+
 # Link the executable to the piper library
-target_link_libraries(piper_cli piper)
+target_link_libraries(piper_cli PRIVATE piper)
 
 # Set the include directories
 target_include_directories(piper_cli PUBLIC
