@@ -2,6 +2,12 @@
 #include <string>
 #include <vector>
 
+#ifdef _WIN32
+#include <filesystem>
+#include <locale>
+#include <codecvt>
+#endif
+
 #include <espeak-ng/speak_lib.h>
 
 #include "piper.hpp"
@@ -17,29 +23,44 @@ namespace piper {
 std::map<std::string, PhonemeMap> DEFAULT_PHONEME_MAP = {
     {"pt-br", {{U'c', {U'k'}}}}};
 
+char* get_espeak_data_path() {
+  char *path;
+
+  #ifdef ESPEAK_NG_DATA_PATH
+    path = ESPEAK_NG_DATA_PATH;
+  #else
+    // Get the canonical path of the executable or DLL file
+    auto exePath = filesystem::canonical("/proc/self/exe");
+
+    // Navigate up one directory from the executable, then into ../share/espeak-ng-data
+    auto datapath = exePath.parent_path().parent_path() / "share" / "espeak-ng-data";
+
+    #ifdef _WIN32
+      // Get the path as a wide string
+      std::wstring wpath = datapath.c_str();
+
+      // Convert wide string to narrow string
+      std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+      std::string narrow = converter.to_bytes(wpath);
+
+      // Use _strdup to duplicate the string
+      path = _strdup(narrow.c_str());
+    #else
+    // Convert to C string
+    path = strdup(datapath.c_str());
+    #endif
+  #endif
+  
+  return path;
+}
+
 void phonemize_eSpeak(std::string text, eSpeakPhonemeConfig &config,
                  std::vector<std::vector<Phoneme>> &phonemes) {
   printf("phonemize_eSpeak\n");
-  
-  char *path;
-
-#ifdef ESPEAK_NG_DATA_PATH
-  printf("ESPEAK_NG_DATA_PATH: %s\n", ESPEAK_NG_DATA_PATH);
-  path = ESPEAK_NG_DATA_PATH;
-#else
-  // Get the canonical path of the executable or DLL file
-  auto exePath = filesystem::canonical("/proc/self/exe");
-  
-  // Navigate up one directory from the executable, then into ../share/espeak-ng-data
-  auto datapath = exePath.parent_path().parent_path() / "share" / "espeak-ng-data";
-
-  // Convert to C string
-  path = strdup(datapath.c_str());
-#endif
 
   int init_result = espeak_Initialize(AUDIO_OUTPUT_SYNCHRONOUS,
                                  /*buflength*/ 0,
-                                 /*path*/ path,
+                                 /*path*/ get_espeak_data_path(),
                                  /*options*/ 0);
   if (init_result < 0) {
     throw std::runtime_error("Failed to initialize eSpeak-ng");

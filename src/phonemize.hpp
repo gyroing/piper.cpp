@@ -44,6 +44,9 @@ struct eSpeakPhonemeConfig {
   std::shared_ptr<PhonemeMap> phonemeMap;
 };
 
+// fetches the espeak-ng data path
+char* get_espeak_data_path();
+
 // Phonemizes text using espeak-ng.
 // Returns phonemes for each sentence as a separate std::vector.
 //
