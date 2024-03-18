@@ -26,31 +26,31 @@ std::map<std::string, PhonemeMap> DEFAULT_PHONEME_MAP = {
 char* get_espeak_data_path() {
   char *path;
 
-  #ifdef ESPEAK_NG_DATA_PATH
-    path = ESPEAK_NG_DATA_PATH;
+  // Get the canonical path of the executable or DLL file
+  auto exePath = filesystem::canonical("/proc/self/exe");
+
+  printf("exePath: %s\n", exePath.c_str());
+
+  // Navigate up one directory from the executable, then into ../share/espeak-ng-data
+  auto datapath = exePath.parent_path() / "share" / "espeak-ng-data";
+
+  printf("datapath: %s\n", datapath.c_str());
+
+  #ifdef _WIN32
+    // Get the path as a wide string
+    std::wstring wpath = datapath.c_str();
+    // Convert wide string to narrow string
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    std::string narrow = converter.to_bytes(wpath);
+    // Use _strdup to duplicate the string
+    path = _strdup(narrow.c_str());
   #else
-    // Get the canonical path of the executable or DLL file
-    auto exePath = filesystem::canonical("/proc/self/exe");
-
-    // Navigate up one directory from the executable, then into ../share/espeak-ng-data
-    auto datapath = exePath.parent_path().parent_path() / "share" / "espeak-ng-data";
-
-    #ifdef _WIN32
-      // Get the path as a wide string
-      std::wstring wpath = datapath.c_str();
-
-      // Convert wide string to narrow string
-      std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-      std::string narrow = converter.to_bytes(wpath);
-
-      // Use _strdup to duplicate the string
-      path = _strdup(narrow.c_str());
-    #else
-      // Convert to C string
-      path = strdup(datapath.c_str());
-    #endif
+    // Convert to C string
+    path = strdup(datapath.c_str());
   #endif
   
+  printf("path: %s\n", path);
+
   return path;
 }
 
