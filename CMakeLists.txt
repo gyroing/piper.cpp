@@ -159,6 +159,14 @@ target_include_directories(piper PUBLIC
 
 # ---- Declare install targets ----
 
+if(WIN32)
+  file(GLOB_RECURSE ESPEAK_NG_LIBS "${ESPEAK_NG_DIR}/**/*.dll")
+  file(GLOB_RECURSE ONNXRUNTIME_LIBS "${ONNXRUNTIME_DIR}/**/*.dll")
+else()
+  file(GLOB_RECURSE ESPEAK_NG_LIBS "${ESPEAK_NG_DIR}/**/*.so*")
+  file(GLOB_RECURSE ONNXRUNTIME_LIBS "${ONNXRUNTIME_DIR}/**/*.so*")
+endif()
+
 include(GNUInstallDirs)
 
 install(
@@ -169,28 +177,21 @@ install(
 )
 
 # Dependencies
-install(
-    DIRECTORY ${ESPEAK_NG_DIR}/lib/
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    FILES_MATCHING
-    PATTERN "*.dll"
-    PATTERN "*.so*"
-)
+install(FILES ${ESPEAK_NG_LIBS} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+install(FILES ${ONNXRUNTIME_LIBS} DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 install(
-    DIRECTORY ${ESPEAK_NG_DIR}/share/
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/../share/
-)
-
-install(
-    DIRECTORY ${ONNXRUNTIME_DIR}/lib/
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    FILES_MATCHING
-    PATTERN "*.dll"
-    PATTERN "*.so*"
+    DIRECTORY ${ESPEAK_NG_DIR}/include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
 install(
     DIRECTORY ${ONNXRUNTIME_DIR}/include/
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(
+    DIRECTORY ${ESPEAK_NG_DIR}/share/
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/../share/
 )

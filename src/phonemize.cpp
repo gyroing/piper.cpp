@@ -46,8 +46,8 @@ char* get_espeak_data_path() {
       // Use _strdup to duplicate the string
       path = _strdup(narrow.c_str());
     #else
-    // Convert to C string
-    path = strdup(datapath.c_str());
+      // Convert to C string
+      path = strdup(datapath.c_str());
     #endif
   #endif
   
