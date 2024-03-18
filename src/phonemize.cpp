@@ -31,8 +31,16 @@ char* get_espeak_data_path() {
 
   printf("exePath: %s\n", exePath.c_str());
 
-  // Navigate up one directory from the executable, then into ../share/espeak-ng-data
-  auto datapath = exePath.parent_path() / "share" / "espeak-ng-data";
+  // Navigate up one directory from the executable
+  auto parentPath = exePath.parent_path();
+
+  #ifndef FLUTTER_BUILD
+    // Navigate up one directory from the executable
+    parentPath = parentPath.parent_path();
+  #endif
+  
+  // then into ../share/espeak-ng-data
+  auto datapath = parentPath / "share" / "espeak-ng-data";
 
   printf("datapath: %s\n", datapath.c_str());
 
