@@ -54,8 +54,13 @@ EXPORT char* piper_generate_speech(const char* modelPath, const char* prompt) {
     // Example model loading, adapt as necessary
     piper::loadVoice(model_path, model_path + ".json", voice, speakerId, false);
 
+    // Use std::chrono to get the current time as Unix timestamp in milliseconds
+    auto now = std::chrono::system_clock::now();
+    auto duration = now.time_since_epoch();
+    auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+
     // Generate the WAV file.
-    std::filesystem::path output_path = std::filesystem::temp_directory_path() / "output.wav";
+    std::filesystem::path output_path = std::filesystem::temp_directory_path() / ("piper_output_" + std::to_string(millis) + ".wav");
     ofstream audio_file(output_path, ios::binary);
     piper::SynthesisResult result;
     piper::textToWavFile(voice, text_prompt, audio_file, result);
