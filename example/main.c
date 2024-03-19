@@ -9,13 +9,20 @@
 #endif
 
 int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        fprintf(stderr, "Usage: %s <modelPath> <inputText>\n", argv[0]);
+    char *modelPath = NULL;
+    char *inputText = NULL;
+
+    if (argc == 2) {
+        // If there's only one argument, treat it as inputText
+        inputText = argv[1];
+    } else if (argc == 3) {
+        // If there are two arguments, the first is modelPath and the second is inputText
+        modelPath = argv[1];
+        inputText = argv[2];
+    } else {
+        fprintf(stderr, "Usage: %s <inputText> or %s <modelPath> <inputText>\n", argv[0], argv[0]);
         return 1;
     }
-
-    char *modelPath = argv[1];
-    char *inputText = argv[2];
 
     // Generate speech
     char *wavFilePath = piper_generate_speech(modelPath, inputText);

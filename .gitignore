@@ -22,6 +22,3 @@ htmlcov
 lightning_logs/
 
 .vscode/
-
-**.onnx
-**.onnx.json

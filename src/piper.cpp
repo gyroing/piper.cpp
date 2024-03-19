@@ -29,10 +29,23 @@ extern "C" {
 EXPORT char* piper_generate_speech(const char* modelPath, const char* prompt) {
     // Simplified logic from the main program to generate speech.
     // This example assumes that other necessary initialization and cleanup are handled elsewhere.
+
+    std::string model_path;
+
+    if (modelPath == nullptr) {
+      model_path = piper::get_share_path().string() + "/piper/en_US-curie-medium-V1.4.onnx";
+    } 
+    else {
+      model_path = modelPath;
+    }
+
+    // Assert that the model exists
+    if (!std::filesystem::exists(model_path)) {
+      throw std::runtime_error("Model file does not exist");
+    }
     
     // Convert C string to C++ string
-    string model_path(modelPath);
-    string text_prompt(prompt);
+    std::string text_prompt(prompt);
 
     // Load the model and prepare for synthesis.
     // This is a simplified example. You should adapt it according to your specific requirements.
