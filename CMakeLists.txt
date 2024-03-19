@@ -109,9 +109,13 @@ endif()
 # ---- espeak-ng ---
 
 if(NOT DEFINED ESPEAK_NG_DIR)
+  if(ANDROID)
+    set(ESPEAK_NG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/prebuilt/arm64-v8a/espeak-ng")
+    add_library(espeak-ng SHARED IMPORTED)
+    set_property(TARGET espeak-ng PROPERTY IMPORTED_LOCATION ${ESPEAK_NG_DIR}/lib/libespeak-ng.so)
+  else()
     set(ESPEAK_NG_DIR "${CMAKE_CURRENT_BINARY_DIR}/ei")
 
-    include(ExternalProject)
     ExternalProject_Add(
         espeak_ng_external
         PREFIX "${CMAKE_CURRENT_BINARY_DIR}/e"
@@ -131,7 +135,9 @@ if(NOT DEFINED ESPEAK_NG_DIR)
             -DCMAKE_CXX_FLAGS="-fPIC"
             -DCMAKE_POSITION_INDEPENDENT_CODE=ON
     )
+
     add_dependencies(piper espeak_ng_external)
+  endif()
 endif()
 
 # ---- Install ----

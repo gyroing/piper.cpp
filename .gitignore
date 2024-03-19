@@ -16,7 +16,6 @@ htmlcov
 /lib/
 /install/
 /download/
-*.so
 
 .venv/
 lightning_logs/
