@@ -23,48 +23,15 @@ namespace piper {
 std::map<std::string, PhonemeMap> DEFAULT_PHONEME_MAP = {
     {"pt-br", {{U'c', {U'k'}}}}};
 
-char* get_espeak_data_path() {
-  char *path;
-
-  // Get the canonical path of the executable or DLL file
-  auto exePath = filesystem::canonical("/proc/self/exe");
-
-  std::filesystem::path datapath;
-
-  // check if we are in the correct directory
-  if (filesystem::exists(exePath.parent_path() / "share" / "espeak-ng-data")) {
-    datapath = exePath.parent_path() / "share" / "espeak-ng-data";
-  } 
-  else if (filesystem::exists(exePath.parent_path().parent_path() / "share" / "espeak-ng-data")) {
-    datapath = exePath.parent_path().parent_path() / "share" / "espeak-ng-data";
-  } 
-  else {
-    throw std::runtime_error("Failed to find espeak-ng data directory");
-  }
-
-  #ifdef _WIN32
-    // Get the path as a wide string
-    std::wstring wpath = datapath.c_str();
-    // Convert wide string to narrow string
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-    std::string narrow = converter.to_bytes(wpath);
-    // Use _strdup to duplicate the string
-    path = _strdup(narrow.c_str());
-  #else
-    // Convert to C string
-    path = strdup(datapath.c_str());
-  #endif
-
-  return path;
-}
-
 void phonemize_eSpeak(std::string text, eSpeakPhonemeConfig &config,
                  std::vector<std::vector<Phoneme>> &phonemes) {
   printf("phonemize_eSpeak\n");
 
+  std::filesystem::path datapath = get_share_path() / "espeak-ng-data";
+
   int init_result = espeak_Initialize(AUDIO_OUTPUT_SYNCHRONOUS,
                                  /*buflength*/ 0,
-                                 /*path*/ get_espeak_data_path(),
+                                 /*path*/ get_c_str_path(datapath),
                                  /*options*/ 0);
   if (init_result < 0) {
     throw std::runtime_error("Failed to initialize eSpeak-ng");

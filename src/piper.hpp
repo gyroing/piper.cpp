@@ -84,6 +84,12 @@ struct Voice {
   ModelSession session;
 };
 
+// Get the path to the share directory
+std::filesystem::path get_share_path();
+
+// Convert a path to a C string
+char* get_c_str_path(std::filesystem::path datapath);
+
 // True if the string is a single UTF-8 codepoint
 bool isSingleCodepoint(std::string s);
 

@@ -7,6 +7,12 @@
 #include <sstream>
 #include <stdexcept>
 
+#ifdef _WIN32
+#include <filesystem>
+#include <locale>
+#include <codecvt>
+#endif
+
 #include <onnxruntime_cxx_api.h>
 
 #include "json.hpp"
@@ -17,7 +23,6 @@
 
 using json = nlohmann::json;
 using namespace std;
-namespace fs = std::filesystem;
 
 extern "C" {
 
@@ -34,10 +39,10 @@ EXPORT char* piper_generate_speech(const char* modelPath, const char* prompt) {
     std::optional<piper::SpeakerId> speakerId;
     piper::Voice voice;
     // Example model loading, adapt as necessary
-    loadVoice(model_path, model_path + ".json", voice, speakerId, false);
+    piper::loadVoice(model_path, model_path + ".json", voice, speakerId, false);
 
     // Generate the WAV file.
-    fs::path output_path = fs::temp_directory_path() / "output.wav";
+    std::filesystem::path output_path = std::filesystem::temp_directory_path() / "output.wav";
     ofstream audio_file(output_path, ios::binary);
     piper::SynthesisResult result;
     piper::textToWavFile(voice, text_prompt, audio_file, result);
@@ -67,6 +72,43 @@ const float MAX_WAV_VALUE = 32767.0f;
 const std::string instanceName{"piper"};
 
 std::string getVersion() { return VERSION; }
+
+std::filesystem::path get_share_path() {
+  // Get the canonical path of the executable or DLL file
+  auto exePath = filesystem::canonical("/proc/self/exe");
+
+  // check if we are in the correct directory
+  if (filesystem::exists(exePath.parent_path() / "share")) {
+    return exePath.parent_path() / "share";
+  } 
+  else if (filesystem::exists(exePath.parent_path().parent_path() / "share")) {
+    return exePath.parent_path().parent_path() / "share";
+  } 
+  else {
+    throw std::runtime_error("Failed to find espeak-ng data directory");
+  }
+
+  return exePath;
+}
+
+char* get_c_str_path(std::filesystem::path datapath) {
+  char *path;
+
+  #ifdef _WIN32
+    // Get the path as a wide string
+    std::wstring wpath = datapath.c_str();
+    // Convert wide string to narrow string
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    std::string narrow = converter.to_bytes(wpath);
+    // Use _strdup to duplicate the string
+    path = _strdup(narrow.c_str());
+  #else
+    // Convert to C string
+    path = strdup(datapath.c_str());
+  #endif
+
+  return path;
+}
 
 // True if the string is a single UTF-8 codepoint
 bool isSingleCodepoint(std::string s) {
